@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niranjan Dahal — Developer Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS VARIABLES / THEMES ===== */
+:root,[data-theme="light"]{
+  --bg:#f8f9fa;--surface:#fff;--surface2:#f1f3f4;--surface3:#e8eaed;
+  --text:#202124;--text2:#5f6368;--text3:#80868b;--text-inv:#fff;
+  --border:#e8eaed;--border2:#dadce0;
+  --green:#01875f;--green-bg:#e6f4f0;--green-light:#34a853;
+  --blue:#1a73e8;--blue-bg:#e8f0fe;
+  --red:#d93025;--yellow:#f9ab00;
+  --topbar-bg:#fff;--topbar-border:#e8eaed;
+  --chip-bg:#e8eaed;--chip-text:#202124;
+  --card-shadow:0 1px 2px rgba(60,64,67,.15),0 2px 6px rgba(60,64,67,.1);
+  --card-shadow-hover:0 2px 8px rgba(60,64,67,.2),0 4px 16px rgba(60,64,67,.12);
+  --scrollbar:#dadce0;
+  --overlay-bg:rgba(0,0,0,.5);
+  --skeleton-from:#e8eaed;--skeleton-to:#f5f5f5;
+  --hero-overlay:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.3) 50%,transparent 100%);
+  --tab-active-color:#1a73e8;--tab-indicator:#1a73e8;
+}
+[data-theme="dark"]{
+  --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#282828;--surface3:#323232;
+  --text:#e8eaed;--text2:#9aa0a6;--text3:#5f6368;--text-inv:#202124;
+  --border:#3c4043;--border2:#5f6368;
+  --green:#34a853;--green-bg:#1a2e22;--green-light:#34a853;
+  --blue:#8ab4f8;--blue-bg:#1a2232;
+  --red:#f28b82;--yellow:#fdd663;
+  --topbar-bg:#1a1a1a;--topbar-border:#3c4043;
+  --chip-bg:#3c4043;--chip-text:#e8eaed;
+  --card-shadow:0 1px 2px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.3);
+  --card-shadow-hover:0 4px 12px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.4);
+  --scrollbar:#3c4043;
+  --overlay-bg:rgba(0,0,0,.75);
+  --skeleton-from:#282828;--skeleton-to:#323232;
+  --hero-overlay:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.4) 50%,transparent 100%);
+  --tab-active-color:#8ab4f8;--tab-indicator:#8ab4f8;
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:14px}
+body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input{font-family:inherit}
+img{display:block}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);
+  height:64px;display:flex;align-items:center;gap:16px;padding:0 16px;
+  transition:background .3s,border-color .3s;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;padding:0 8px}
+.logo-icon{display:flex;align-items:center;gap:2px}
+.logo-icon span{font-size:22px;font-weight:700;line-height:1}
+.logo-icon .g{color:#4285f4}.logo-icon .o1{color:#ea4335}.logo-icon .o2{color:#fbbc04}.logo-icon .g2{color:#4285f4}.logo-icon .l{color:#34a853}.logo-icon .e{color:#ea4335}
+.logo-play{font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);margin-left:2px}
+.topbar-nav{display:flex;gap:4px;flex-shrink:0}
+.topbar-nav-btn{padding:6px 14px;border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;background:none;border:none}
+.topbar-nav-btn:hover{background:var(--surface2)}
+.topbar-nav-btn.active{background:var(--blue-bg);color:var(--blue)}
+.topbar-search{flex:1;max-width:720px;margin:0 auto}
+.search-bar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border:1px solid transparent;border-radius:24px;
+  padding:0 16px;height:46px;cursor:text;transition:all .2s;
+}
+.search-bar:focus-within{background:var(--surface);border-color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.search-bar input{flex:1;border:none;background:transparent;font-size:15px;color:var(--text);outline:none}
+.search-bar input::placeholder{color:var(--text3)}
+.search-icon-btn{color:var(--text2);display:flex;align-items:center;padding:4px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text2);cursor:pointer;transition:background .15s;border:none;background:none}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn svg{width:22px;height:22px}
+.theme-toggle{width:40px;height:40px}
+.avatar-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#01875f,#34a853);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:12px;cursor:pointer;border:2px solid var(--border2);flex-shrink:0}
+
+/* ===== CATEGORY TABS ===== */
+.cat-bar{
+  background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);
+  position:sticky;top:64px;z-index:190;
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  transition:background .3s;
+}
+.cat-bar::-webkit-scrollbar{display:none}
+.cat-tab{
+  flex-shrink:0;padding:0 20px;height:48px;
+  display:flex;align-items:center;
+  font-size:13px;font-weight:500;color:var(--text2);
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .15s;white-space:nowrap;border-top:none;border-left:none;border-right:none;background:none;
+}
+.cat-tab:hover{color:var(--text);background:var(--surface2)}
+.cat-tab.active{color:var(--tab-active-color);border-bottom-color:var(--tab-indicator);font-weight:500}
+
+/* ===== MAIN LAYOUT ===== */
+.main-wrap{display:flex;max-width:1400px;margin:0 auto}
+.sidebar{width:240px;flex-shrink:0;padding:24px 16px;position:sticky;top:113px;height:calc(100vh - 113px);overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:12px 12px 6px}
+.sidebar-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:100px;
+  font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;
+}
+.sidebar-item:hover{background:var(--surface2);color:var(--text)}
+.sidebar-item.active{background:var(--blue-bg);color:var(--blue)}
+.sidebar-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+
+/* ===== CONTENT ===== */
+.content{flex:1;min-width:0;padding:0 0 80px}
+
+/* ===== HERO BANNER ===== */
+.hero-banner{padding:16px 24px 0;overflow:hidden}
+.hero-track-wrap{position:relative;overflow:hidden;border-radius:16px}
+.hero-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.hero-slide{
+  min-width:100%;height:260px;position:relative;cursor:pointer;flex-shrink:0;overflow:hidden;border-radius:16px;
+  background:var(--surface3);
+}
+.hero-slide-bg{width:100%;height:100%;object-fit:cover;background:linear-gradient(135deg,#1a2e22,#0f3460)}
+.hero-slide-overlay{position:absolute;inset:0;background:var(--hero-overlay)}
+.hero-slide-badge{
+  position:absolute;top:16px;left:16px;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:11px;font-weight:500;padding:4px 12px;border-radius:100px;
+  display:flex;align-items:center;gap:6px;
+}
+.update-dot{width:6px;height:6px;border-radius:50%;background:#34a853;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-slide-content{position:absolute;bottom:0;left:0;right:0;padding:20px 24px}
+.hero-app-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.hero-app-icon{
+  width:56px;height:56px;border-radius:12px;overflow:hidden;
+  background:var(--surface);border:1px solid rgba(255,255,255,.15);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.hero-app-info{}
+.hero-app-name{font-family:'Google Sans Display',sans-serif;font-size:20px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:2px}
+.hero-app-dev{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:4px}
+.hero-app-rating{display:flex;align-items:center;gap:4px;font-size:12px;color:rgba(255,255,255,.85)}
+.hero-actions{display:flex;gap:10px;align-items:center}
+.hero-install-btn{
+  background:#fff;color:var(--text);
+  border:none;border-radius:100px;padding:8px 22px;font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .2s;font-family:'Google Sans',sans-serif;
+}
+.hero-install-btn:hover{transform:scale(1.02)}
+.hero-install-btn.green{background:var(--green);color:#fff}
+.hero-wish-btn{
+  background:rgba(255,255,255,.15);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:100px;
+  padding:8px 16px;font-size:13px;cursor:pointer;transition:all .15s;
+}
+.hero-indicators{position:absolute;bottom:16px;right:20px;display:flex;gap:5px;z-index:2}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .25s}
+.hero-dot.active{background:#fff;width:20px;border-radius:3px}
+.hero-prev,.hero-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.12);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2;
+  opacity:0;line-height:1;
+}
+.hero-track-wrap:hover .hero-prev,.hero-track-wrap:hover .hero-next{opacity:1}
+.hero-prev{left:12px}.hero-next{right:12px}
+.hero-prev:hover,.hero-next:hover{background:rgba(255,255,255,.22)}
+
+/* ===== SECTION ===== */
+.section{padding:24px 24px 0}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Google Sans',sans-serif;font-size:17px;font-weight:500;color:var(--text)}
+.see-more-btn{font-size:13px;font-weight:500;color:var(--blue);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px}
+.see-more-btn:hover{background:var(--blue-bg)}
+
+/* ===== TOP CHARTS ===== */
+.charts-tabs{display:flex;gap:0;background:var(--surface2);border-radius:100px;padding:2px;margin-bottom:18px;width:fit-content}
+.chart-tab{padding:6px 18px;border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none}
+.chart-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--card-shadow)}
+
+/* Chart list */
+.chart-list{display:flex;flex-direction:column;gap:0}
+.chart-row{
+  display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:12px;cursor:pointer;transition:background .15s;
+}
+.chart-row:hover{background:var(--surface2)}
+.chart-rank{font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;color:var(--text2);width:20px;text-align:center;flex-shrink:0}
+.chart-icon{width:56px;height:56px;border-radius:12px;overflow:hidden;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.chart-icon img{width:100%;height:100%;object-fit:cover}
+.chart-info{flex:1;min-width:0}
+.chart-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-cat{font-size:12px;color:var(--text2)}
+.chart-rating{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:3px;margin-top:2px}
+.chart-rating .star{color:var(--yellow);font-size:11px}
+.chart-btn{
+  padding:7px 18px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;
+  background:var(--green-bg);color:var(--green);border:none;transition:all .15s;white-space:nowrap;
+}
+.chart-btn:hover{background:var(--green);color:#fff}
+.chart-btn.price{background:var(--chip-bg);color:var(--text2)}
+.chart-btn.price:hover{background:var(--surface3)}
+
+/* Chart grid (3 cols) */
+.chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.chart-grid-col{border-right:1px solid var(--border)}
+.chart-grid-col:last-child{border-right:none}
+.chart-grid-col-header{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:8px 14px 6px}
+
+/* ===== HORIZONTAL SCROLL ROW ===== */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;scroll-snap-type:x mandatory}
+.h-scroll::-webkit-scrollbar{display:none}
+
+/* App card square (icon + name) */
+.app-sq{min-width:84px;max-width:84px;cursor:pointer;scroll-snap-align:start;transition:transform .2s}
+.app-sq:hover{transform:scale(1.04)}
+.app-sq-icon{width:84px;height:84px;border-radius:18px;overflow:hidden;background:var(--surface3);margin-bottom:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:38px;border:1px solid var(--border)}
+.app-sq-icon img{width:100%;height:100%;object-fit:cover}
+.app-sq-name{font-size:12px;color:var(--text2);text-align:center;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-sq-rating{font-size:11px;color:var(--text3);text-align:center;display:flex;align-items:center;justify-content:center;gap:2px;margin-top:2px}
+.app-sq-rating .star{color:var(--yellow);font-size:10px}
+
+/* App card wide */
+.app-wide{min-width:220px;background:var(--surface);border-radius:12px;overflow:hidden;cursor:pointer;scroll-snap-align:start;transition:all .2s;border:1px solid var(--border)}
+.app-wide:hover{box-shadow:var(--card-shadow-hover);transform:translateY(-1px)}
+.app-wide-img{width:100%;height:120px;object-fit:cover;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:48px}
+.app-wide-body{padding:10px 12px}
+.app-wide-row{display:flex;align-items:center;gap:10px}
+.app-wide-icon{width:40px;height:40px;border-radius:9px;overflow:hidden;background:var(--surface3);flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px}
+.app-wide-info .name{font-size:13px;font-weight:500;color:var(--text)}
+.app-wide-info .sub{font-size:11px;color:var(--text2);margin-top:1px}
+.app-wide-info .rating{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:2px;margin-top:2px}
+.app-wide-info .rating .star{color:var(--yellow);font-size:10px}
+
+/* Promo wide card (like hero sub-cards) */
+.promo-card{min-width:300px;border-radius:12px;overflow:hidden;cursor:pointer;scroll-snap-align:start;background:var(--surface3);position:relative;height:180px;border:1px solid var(--border);transition:all .2s}
+.promo-card:hover{box-shadow:var(--card-shadow-hover);transform:translateY(-1px)}
+.promo-card-bg{width:100%;height:100%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:60px;background:linear-gradient(135deg,#1a2e22,#0f3460)}
+.promo-card-overlay{position:absolute;inset:0;background:var(--hero-overlay)}
+.promo-card-content{position:absolute;bottom:0;left:0;right:0;padding:16px}
+.promo-card-badge{font-size:10px;color:rgba(255,255,255,.8);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.promo-card-name{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:2px}
+.promo-card-sub{font-size:12px;color:rgba(255,255,255,.75)}
+.promo-card-btn{
+  position:absolute;top:14px;right:14px;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.25);color:#fff;
+  border-radius:100px;padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;
+}
+
+/* ===== CHIPS ===== */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:500;background:var(--chip-bg);color:var(--chip-text)}
+.chip.flutter{background:#e3f2fd;color:#1565c0}
+.chip.ai{background:#fce4ec;color:#880e4f}
+.chip.firebase{background:#fff3e0;color:#bf360c}
+.chip.backend{background:#e8f5e9;color:#1b5e20}
+.chip.research{background:#f3e5f5;color:#4a148c}
+.chip.game{background:#e8eaf6;color:#1a237e}
+[data-theme="dark"] .chip.flutter{background:#1a2a3a;color:#82b1ff}
+[data-theme="dark"] .chip.ai{background:#2a1a2a;color:#f48fb1}
+[data-theme="dark"] .chip.firebase{background:#2a1a0a;color:#ffcc80}
+[data-theme="dark"] .chip.backend{background:#0a1a0a;color:#a5d6a7}
+[data-theme="dark"] .chip.research{background:#1a0a2a;color:#ce93d8}
+[data-theme="dark"] .chip.game{background:#0a0a2a;color:#9fa8da}
+
+/* ===== DETAIL PAGE ===== */
+.detail-page{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto;transition:background .3s}
+.detail-page.open{display:block}
+.detail-topbar{
+  position:sticky;top:0;background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);
+  height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:10;
+  backdrop-filter:blur(8px);
+}
+.back-btn{width:36px;height:36px;border-radius:50%;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:24px;transition:background .15s}
+.back-btn:hover{background:var(--surface2)}
+.detail-content{max-width:900px;margin:0 auto;padding:24px 24px 120px}
+
+/* App header */
+.app-header{display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap}
+.app-header-icon{width:96px;height:96px;border-radius:22px;overflow:hidden;flex-shrink:0;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:48px}
+.app-header-icon img{width:100%;height:100%;object-fit:cover}
+.app-header-info{flex:1;min-width:200px}
+.app-header-name{font-family:'Google Sans Display',sans-serif;font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:3px}
+.app-header-dev{font-size:14px;color:var(--green);font-weight:500;cursor:pointer;margin-bottom:3px}
+.app-header-dev:hover{text-decoration:underline}
+.app-header-cat{font-size:13px;color:var(--text2);margin-bottom:12px}
+.app-header-actions{display:flex;gap:10px;flex-wrap:wrap}
+.install-btn{
+  background:var(--green);color:#fff;border:none;border-radius:100px;
+  padding:11px 32px;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;
+  font-family:'Google Sans',sans-serif;
+}
+.install-btn:hover{background:#016e4f;transform:scale(1.02)}
+.install-btn.outline{background:transparent;color:var(--green);border:2px solid var(--green)}
+.install-btn.outline:hover{background:var(--green-bg)}
+.wishlist-btn{
+  width:46px;height:46px;border-radius:50%;border:2px solid var(--border2);background:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);
+  transition:all .15s;
+}
+.wishlist-btn:hover{background:var(--surface2);border-color:var(--text2)}
+
+/* Ratings bar */
+.ratings-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:20px 0;background:var(--surface)}
+.rating-section{flex:1;padding:16px 20px;text-align:center;border-right:1px solid var(--border)}
+.rating-section:last-child{border-right:none}
+.rating-big{font-family:'Google Sans',sans-serif;font-size:28px;font-weight:700;color:var(--text);letter-spacing:-1px}
+.rating-stars-row{display:flex;justify-content:center;gap:2px;margin:4px 0}
+.rating-star{color:var(--yellow);font-size:14px}
+.rating-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+
+/* Screenshots */
+.screenshots-wrap{margin:24px 0}
+.screenshots-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.screenshots-scroll::-webkit-scrollbar{display:none}
+.screenshot{min-width:140px;height:250px;border-radius:12px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:40px}
+.screenshot img{width:100%;height:100%;object-fit:cover}
+
+/* About section */
+.about-section{border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:20px 0;background:var(--surface)}
+.about-section-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s}
+.about-section-header:hover{background:var(--surface2)}
+.about-section-title{font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;color:var(--text)}
+.about-body{padding:0 20px 20px;font-size:14px;color:var(--text2);line-height:1.7}
+.about-features{padding:0 20px 16px}
+.feature-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:14px;color:var(--text2)}
+.feature-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:7px;flex-shrink:0}
+
+/* Tags row */
+.tags-row{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px}
+
+/* What's new */
+.whats-new{padding:0 20px 20px;font-size:13px;color:var(--text2);line-height:1.6}
+.version-label{font-size:11px;color:var(--text3);margin-bottom:6px}
+
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));border-top:1px solid var(--border)}
+.info-cell{padding:16px 20px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+.info-cell:nth-last-child(-n+3){border-bottom:none}
+.info-cell-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.info-cell-val{font-family:'Google Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text)}
+
+/* Sticky CTA */
+.sticky-cta{
+  position:fixed;bottom:0;left:0;right:0;z-index:600;
+  background:rgba(255,255,255,.92);border-top:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;gap:14px;
+  backdrop-filter:blur(12px);display:none;
+}
+[data-theme="dark"] .sticky-cta{background:rgba(26,26,26,.92)}
+.sticky-cta.visible{display:flex}
+.sticky-cta-app{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.sticky-cta-icon{width:40px;height:40px;border-radius:9px;overflow:hidden;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.sticky-cta-name{font-weight:500;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ===== SEARCH OVERLAY ===== */
+#searchOverlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;transition:background .3s}
+#searchOverlay.open{display:block}
+.search-overlay-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+.search-overlay-input{flex:1;height:46px;background:var(--surface2);border:1.5px solid transparent;border-radius:24px;padding:0 20px;font-size:15px;color:var(--text);outline:none;transition:all .2s}
+.search-overlay-input:focus{background:var(--surface);border-color:var(--blue)}
+.search-results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:24px}
+.no-results{text-align:center;padding:80px 20px;color:var(--text2)}
+.no-results-icon{font-size:48px;margin-bottom:16px}
+.no-results p{font-size:16px}
+.no-results span{font-size:13px;color:var(--text3);display:block;margin-top:6px}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{from{background-position:-400px 0}to{background-position:400px 0}}
+.fade-in{animation:fadeSlideUp .3s ease both}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:960px){.sidebar{display:none}}
+@media(max-width:600px){
+  .topbar{height:56px;padding:0 12px;gap:10px}
+  .topbar-nav{display:none}
+  .hero-slide{height:200px}
+  .hero-app-name{font-size:17px}
+  .main-wrap{flex-direction:column}
+  .section{padding:16px 14px 0}
+  .hero-banner{padding:12px 14px 0}
+  .detail-content{padding:16px 14px 120px}
+  .chart-grid{grid-template-columns:1fr}
+  .chart-grid-col{border-right:none;border-bottom:1px solid var(--border)}
+  .ratings-bar{flex-direction:column}
+  .rating-section{border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <span style="font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500;color:var(--text);margin-left:4px">Play</span>
+    </div>
+  </div>
+  <nav class="topbar-nav">
+    <button class="topbar-nav-btn active" onclick="setNav(this)">Apps</button>
+    <button class="topbar-nav-btn" onclick="setNav(this)">Games</button>
+    <button class="topbar-nav-btn" onclick="setNav(this)">Kids</button>
+  </nav>
+  <div class="topbar-search">
+    <div class="search-bar" onclick="openSearch()">
+      <div class="search-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <input type="text" placeholder="Search apps & games" readonly onclick="openSearch()">
+      <div class="search-icon-btn" style="margin-left:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 23h8"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">
+      <svg viewBox="0 0 24 24" fill="currentColor" id="themeIcon"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </button>
+    <button class="icon-btn" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
+    <div class="avatar-btn">ND</div>
+  </div>
+</header>
+
+<!-- ===== CATEGORY TABS ===== -->
+<nav class="cat-bar" id="catBar">
+  <button class="cat-tab active" onclick="filterCat('all',this)">For you</button>
+  <button class="cat-tab" onclick="filterCat('featured',this)">Top picks</button>
+  <button class="cat-tab" onclick="filterCat('flutter',this)">Flutter</button>
+  <button class="cat-tab" onclick="filterCat('ai',this)">AI &amp; ML</button>
+  <button class="cat-tab" onclick="filterCat('backend',this)">Backend</button>
+  <button class="cat-tab" onclick="filterCat('game',this)">Games</button>
+  <button class="cat-tab" onclick="filterCat('research',this)">Research</button>
+</nav>
+
+<!-- ===== SEARCH OVERLAY ===== -->
+<div id="searchOverlay">
+  <div class="search-overlay-bar">
+    <button class="back-btn" onclick="closeSearch()" style="font-size:22px">&#8592;</button>
+    <input class="search-overlay-input" type="text" placeholder="Search apps & games" id="searchInput" oninput="doSearch(this.value)" autofocus>
+    <button class="icon-btn" onclick="document.getElementById('searchInput').value='';doSearch('')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <p style="font-size:13px;color:var(--text3);padding:16px 24px 0" id="searchLabel"></p>
+  <div class="search-results-grid" id="searchGrid"></div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="main-wrap">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Discover</div>
+      <button class="sidebar-item active" onclick="sidebarNav(this,'all')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'featured')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Featured
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'charts')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Top Charts
+      </button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Categories</div>
+      <button class="sidebar-item" onclick="sidebarNav(this,'flutter')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Flutter Apps
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'ai')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+        AI &amp; ML
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'game')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+        Games
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'research')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Research
+      </button>
+      <button class="sidebar-item" onclick="sidebarNav(this,'backend')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Backend
+      </button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Developer</div>
+      <button class="sidebar-item" onclick="openDetail('about')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Niranjan Dahal
+      </button>
+      <a href="mailto:niranjandahal76@gmail.com" class="sidebar-item" style="color:var(--text2)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Contact
+      </a>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content" id="mainContent">
+
+    <!-- Hero Banner -->
+    <div class="hero-banner" id="heroBanner">
+      <div class="hero-track-wrap">
+        <div class="hero-track" id="heroTrack"></div>
+        <button class="hero-prev" onclick="moveHero(-1)">&#8249;</button>
+        <button class="hero-next" onclick="moveHero(1)">&#8250;</button>
+        <div class="hero-indicators" id="heroIndicators"></div>
+      </div>
+    </div>
+
+    <!-- Top Charts -->
+    <div class="section" id="sectionCharts">
+      <div class="section-header">
+        <span class="section-title">Top charts</span>
+        <button class="see-more-btn" onclick="alert('Showing all charts')">See more</button>
+      </div>
+      <div class="charts-tabs">
+        <button class="chart-tab active" onclick="switchChartTab('free',this)">Top free</button>
+        <button class="chart-tab" onclick="switchChartTab('grossing',this)">Top grossing</button>
+        <button class="chart-tab" onclick="switchChartTab('paid',this)">Top paid</button>
+      </div>
+      <div id="chartsList"></div>
+    </div>
+
+    <!-- Recommended for you -->
+    <div class="section" id="sectionRec">
+      <div class="section-header">
+        <span class="section-title">Recommended for you</span>
+        <button class="see-more-btn" onclick="filterCat('all',document.querySelector('.cat-tab'))">See more</button>
+      </div>
+      <div class="h-scroll" id="scrollRec"></div>
+    </div>
+
+    <!-- Featured / Top picks -->
+    <div class="section" id="sectionFeatured">
+      <div class="section-header">
+        <span class="section-title">🚀 Featured Projects</span>
+        <button class="see-more-btn" onclick="filterCat('featured',document.querySelectorAll('.cat-tab')[1])">See more</button>
+      </div>
+      <div class="h-scroll" id="scrollFeatured"></div>
+    </div>
+
+    <!-- Flutter Apps -->
+    <div class="section" id="sectionFlutter">
+      <div class="section-header">
+        <span class="section-title">📱 Flutter Apps</span>
+        <button class="see-more-btn" onclick="filterCat('flutter',document.querySelectorAll('.cat-tab')[2])">See more</button>
+      </div>
+      <div class="h-scroll" id="scrollFlutter"></div>
+    </div>
+
+    <!-- AI & ML -->
+    <div class="section" id="sectionAI">
+      <div class="section-header">
+        <span class="section-title">🧠 AI &amp; ML</span>
+        <button class="see-more-btn" onclick="filterCat('ai',document.querySelectorAll('.cat-tab')[3])">See more</button>
+      </div>
+      <div class="h-scroll" id="scrollAI"></div>
+    </div>
+
+    <!-- Because you like Flutter -->
+    <div class="section" id="sectionBecause">
+      <div class="section-header">
+        <span class="section-title">Because you build with Flutter</span>
+      </div>
+      <div class="h-scroll" id="scrollBecause"></div>
+    </div>
+
+    <!-- Research -->
+    <div class="section" id="sectionResearch">
+      <div class="section-header">
+        <span class="section-title">🔬 Research &amp; Grants</span>
+        <button class="see-more-btn" onclick="filterCat('research',document.querySelectorAll('.cat-tab')[6])">See more</button>
+      </div>
+      <div class="h-scroll" id="scrollResearch"></div>
+    </div>
+
+    <!-- Editors choice promo -->
+    <div class="section" id="sectionPromo">
+      <div class="section-header">
+        <span class="section-title">Editor's choice</span>
+      </div>
+      <div class="h-scroll" id="scrollPromo"></div>
+    </div>
+
+    <div style="height:40px"></div>
+  </div>
+</div>
+
+<!-- ===== DETAIL PAGE ===== -->
+<div class="detail-page" id="detailPage">
+  <header class="detail-topbar">
+    <button class="back-btn" onclick="closeDetail()">&#8592;</button>
+    <div style="display:flex;gap:8px;margin-left:auto">
+      <button class="icon-btn" onclick="alert('Share link copied!')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      <button class="icon-btn" onclick="alert('Added to wishlist!')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+  </header>
+  <div class="detail-content" id="detailContent"></div>
+  <div class="sticky-cta" id="stickyCta"></div>
+</div>
+
+<script>
+// ===== THEME =====
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeIcon').innerHTML=isDark
+    ?'<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>'
+    :'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+function setNav(btn){
+  document.querySelectorAll('.topbar-nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ===== PROJECT DATA =====
+const PROJECTS = [
+  {id:'labhealth',name:'LabHealth',dev:'Niranjan Dahal',cat:'Healthcare',
+   tagline:'Lab platform handling 50 to 20,000+ samples/day',
+   desc:'Enterprise-grade laboratory management platform built from scratch. Handles the complete workflow — from home sample collection to patient report delivery. Multi-role architecture supports lab technicians, administrators, patients, and field collection agents at any scale.',
+   icon:'🔬',thumb:'🏥',emoji:'🔬',
+   screenshots:['🔬','📊','📱','🏥','📋'],
+   rating:4.9,reviews:'2.3K',downloads:'10K+',size:'28 MB',
+   tags:['flutter','backend'],category:['featured','flutter'],featured:true,
+   tech:['Flutter','Dart','Firebase','Bloc','Clean Architecture','Multi-role','CI/CD'],
+   features:['Handles 50 to 20,000+ lab samples per day without degradation','Multi-role system with distinct flows per user type','Real-time patient report delivery with push notifications','Home sample collection scheduling with GPS tracking','Deployed live on Google Play Store for enterprise clients'],
+   metrics:{Rating:'4.9',Reviews:'2.3K',Users:'10K+',Domain:'Healthcare'},
+   version:'3.2.1',updated:'Apr 2026',
+   links:{play:'#',github:'#'},period:'Nov 2025 – Present',
+   whatsNew:'Improved report generation speed by 40%. Added bulk sample processing. Dark mode support.',
+   price:'Free'},
+
+  {id:'nepfix',name:'NepFix',dev:'Niranjan Dahal',cat:'Marketplace',
+   tagline:'Dual-role home services marketplace — real-time matching',
+   desc:'Real-time marketplace connecting customers with verified service providers across Nepal. The dual-role architecture allows users to seamlessly switch between booking services and accepting jobs. Delivered end-to-end from design to Play Store.',
+   icon:'🔧',thumb:'🏠',emoji:'🔧',
+   screenshots:['🔧','🗺️','💬','📅','⭐'],
+   rating:4.7,reviews:'1.1K',downloads:'5K+',size:'22 MB',
+   tags:['flutter','backend'],category:['featured','flutter'],featured:true,
+   tech:['Flutter','Firebase Realtime DB','Riverpod','Node.js','Maps API'],
+   features:['Dual-role: customer and service provider in one app','Real-time job matching and acceptance flow','Live location tracking for service providers','In-app messaging with image and file support','End-to-end delivery: concept to Play Store'],
+   metrics:{Rating:'4.7',Reviews:'1.1K',Users:'5K+',Domain:'Marketplace'},
+   version:'2.1.0',updated:'Mar 2026',
+   links:{play:'#',github:'#'},period:'Jun – Oct 2025',
+   whatsNew:'Added real-time provider tracking. Improved chat performance. New booking calendar view.',
+   price:'Free'},
+
+  {id:'zegocloud',name:'ZegoCloud Live',dev:'Niranjan Dahal × ZegoCloud',cat:'Video & Live',
+   tagline:'Low-latency live streaming & HD video calling SDK demo',
+   desc:'Official brand collaboration app with ZegoCloud showcasing their SDK capabilities. Features ultra-low-latency live streaming, HD video calling, real-time audio processing, and audience interaction tools built entirely with Flutter.',
+   icon:'📡',thumb:'🎥',emoji:'📡',
+   screenshots:['📡','🎥','🎙️','👥','⚡'],
+   rating:4.8,reviews:'856',downloads:'1K+',size:'35 MB',
+   tags:['flutter','backend'],category:['featured','flutter'],featured:true,
+   tech:['Flutter','ZegoCloud SDK','WebRTC','Low-latency AV','Dart'],
+   features:['Sub-200ms latency live streaming','HD video calling with noise cancellation','Audience interaction: gifts, reactions, Q&A','Multi-host streaming support','Official ZegoCloud brand collaboration'],
+   metrics:{Rating:'4.8',Reviews:'856',Partner:'ZegoCloud',Domain:'Video/Live'},
+   version:'1.5.0',updated:'Feb 2026',
+   links:{demo:'#',github:'#'},period:'Apr – Jul 2025',
+   whatsNew:'Added gift animation system. Improved iOS video stability. Added screen sharing.',
+   price:'Free'},
+
+  {id:'bhagchal',name:'BhagChal Online',dev:'Niranjan Dahal',cat:'Strategy Game',
+   tagline:'Real-time multiplayer Nepali board game',
+   desc:'The ancient Nepali strategy game BhagChal — fully digitized with real-time multiplayer. Synchronized game state across devices using Firebase Realtime Database. Features smooth animations, matchmaking, and competitive rankings.',
+   icon:'♟️',thumb:'🎮',emoji:'♟️',
+   screenshots:['♟️','🎮','🏆','👥','📊'],
+   rating:4.6,reviews:'640',downloads:'5K+',size:'18 MB',
+   tags:['flutter','game','backend'],category:['game','flutter'],
+   tech:['Flutter','Firebase','Realtime DB','Game Logic','Animation','GetX'],
+   features:['Classic BhagChal rules faithfully implemented','Real-time sync with <50ms latency via Firebase','Online matchmaking with ELO rating system','Smooth piece movement animations','Game history and replay system'],
+   metrics:{Rating:'4.6',Reviews:'640',Players:'5K+',Domain:'Strategy'},
+   version:'2.0.3',updated:'Jan 2026',
+   links:{play:'#',github:'#'},period:'Mar – Jul 2025',
+   whatsNew:'ELO ranking system added. Improved AI opponent difficulty levels. Game replay feature.',
+   price:'Free'},
+
+  {id:'cbdc',name:'CBDC Wallet',dev:'Niranjan Dahal',cat:'Fintech · Research',
+   tagline:'National research grant · Blockchain CBDC app',
+   desc:'Led Flutter development for a Central Bank Digital Currency research prototype. Received national-level research acknowledgment and grant from IOE Nepal. Includes blockchain transaction management, secure wallet UI, and multi-party cryptographic authentication.',
+   icon:'💰',thumb:'🏦',emoji:'💰',
+   screenshots:['💰','🔐','📊','🔗','📄'],
+   rating:4.9,reviews:'124',downloads:'Research',size:'24 MB',
+   tags:['flutter','research','backend'],category:['research','flutter'],
+   tech:['Flutter','Blockchain','Cryptography','Fintech','IOE Nepal','Research'],
+   features:['CBDC transaction management on blockchain','Secure wallet with cryptographic key signing','Multi-party authorization for high-value transfers','National research grant recipient — IOE Nepal','QR-based payment initiation'],
+   metrics:{Rating:'4.9',Grant:'National',Domain:'Fintech',Award:'IOE Nepal'},
+   version:'1.2.0',updated:'Jan 2025',
+   links:{github:'#'},period:'Aug 2024 – Jan 2025',
+   whatsNew:'Research paper published. Blockchain sync improved. Biometric auth added.',
+   price:'Research'},
+
+  {id:'disease',name:'DiseaseDetect AI',dev:'Niranjan Dahal',cat:'AI · Healthcare',
+   tagline:'ResNet50 & VGG16 · National research grant',
+   desc:'End-to-end mobile disease detection using deep learning. Camera-to-inference pipeline using ResNet50 and VGG16 architectures with on-device and server inference. Received national research grant for healthcare AI innovation.',
+   icon:'🧬',thumb:'🏥',emoji:'🧬',
+   screenshots:['🧬','📷','🔬','📊','📋'],
+   rating:4.8,reviews:'198',downloads:'Research',size:'120 MB',
+   tags:['ai','flutter','research'],category:['ai','research','flutter'],
+   tech:['Flutter','Python','ResNet50','VGG16','TensorFlow','Camera','ML Pipeline'],
+   features:['Real-time disease detection via phone camera','ResNet50 & VGG16 with 94%+ accuracy','On-device TFLite inference for offline use','Server-side pipeline for high-res analysis','National research grant from IOE Nepal'],
+   metrics:{Rating:'4.8',Accuracy:'94%+',Grant:'National',Domain:'AI/Health'},
+   version:'2.1.0',updated:'Aug 2024',
+   links:{github:'#'},period:'Nov 2023 – Aug 2024',
+   whatsNew:'Added VGG16 model for improved accuracy. TFLite on-device inference. Multi-disease detection.',
+   price:'Research'},
+
+  {id:'kotakhoj',name:'Kotha Khoj',dev:'Niranjan Dahal',cat:'Real Estate',
+   tagline:'Rental marketplace · direct landlord-tenant',
+   desc:'Direct rental marketplace eliminating middlemen between landlords and tenants in Nepal. Map-based property discovery, real-time booking, advanced filtering, and verified listings with live chat.',
+   icon:'🏠',thumb:'🗺️',emoji:'🏠',
+   screenshots:['🏠','🗺️','🔍','💬','📅'],
+   rating:4.5,reviews:'480',downloads:'2K+',size:'21 MB',
+   tags:['flutter','backend'],category:['flutter'],
+   tech:['Flutter','Firebase','Google Maps','Riverpod','Realtime DB','Cloud Functions'],
+   features:['Map-based property search with radius filter','Direct landlord-tenant communication, no brokers','Real-time booking with instant confirmation','Verified landlord badges and property inspection','Advanced filters: price, area, amenities, distance'],
+   metrics:{Rating:'4.5',Reviews:'480',Listings:'2K+',Domain:'Real Estate'},
+   version:'1.8.2',updated:'Apr 2025',
+   links:{play:'#',github:'#'},period:'Jan – Apr 2025',
+   whatsNew:'Map clustering for dense areas. Added virtual tour feature. Improved search speed.',
+   price:'Free'},
+
+  {id:'moviehunt',name:'Movie Hunt',dev:'Niranjan Dahal',cat:'Entertainment',
+   tagline:'Movie discovery app · 20K+ YouTube tutorial views',
+   desc:'Feature-rich movie discovery app using TMDB API with advanced search, trailer playback, watchlists, and personalized recommendations. The full project build tutorial on YouTube earned 20K+ organic views.',
+   icon:'🎬',thumb:'🎥',emoji:'🎬',
+   screenshots:['🎬','🎥','⭐','📋','🔍'],
+   rating:4.7,reviews:'920',downloads:'10K+',size:'16 MB',
+   tags:['flutter'],category:['flutter','featured'],
+   tech:['Flutter','TMDB API','GetX','REST API','Clean Architecture','SQLite'],
+   features:['Real-time movie search with TMDB API','Trailer playback integrated with YouTube','Watchlist with local SQLite persistence','Personalized recommendation engine','YouTube tutorial: 20K+ organic views'],
+   metrics:{Rating:'4.7',Reviews:'920',Reach:'20K+ views',Domain:'Entertainment'},
+   version:'3.0.0',updated:'Sep 2023',
+   links:{youtube:'#',github:'#'},period:'Dec 2022 – Sep 2023',
+   whatsNew:'Rebuilt with Clean Architecture. Added offline mode. Improved recommendation algorithm.',
+   price:'Free'},
+
+  {id:'vrtourism',name:'VR Tourism Nepal',dev:'Niranjan Dahal',cat:'Travel & VR',
+   tagline:'360° immersive virtual tourism experience',
+   desc:'Immersive virtual tourism app enabling 360° panoramic exploration of Nepali destinations. Features guided audio tours, interactive information hotspots, and offline destination packs for travel without connectivity.',
+   icon:'🌏',thumb:'🏔️',emoji:'🌏',
+   screenshots:['🌏','🏔️','📍','🎙️','🗺️'],
+   rating:4.4,reviews:'312',downloads:'1K+',size:'45 MB',
+   tags:['flutter','ai'],category:['flutter','ai'],
+   tech:['Flutter','360° Panorama','Audio Engine','Maps','Offline Packs'],
+   features:['Full 360° panoramic viewing with gyroscope','Guided audio tours with auto-sync','Interactive hotspots with historical info','Offline destination packs (50MB each)','AR overlay for real-world navigation'],
+   metrics:{Rating:'4.4',Reviews:'312',Downloads:'1K+',Domain:'Travel/VR'},
+   version:'1.3.0',updated:'Dec 2023',
+   links:{github:'#'},period:'2023',
+   whatsNew:'Added AR overlay mode. New Pokhara destination pack. Improved 360° performance.',
+   price:'Free'},
+];
+
+// ===== HERO CAROUSEL =====
+const heroProjects = PROJECTS.filter(p=>p.featured);
+const heroColors = [
+  'linear-gradient(135deg,#1a2e22 0%,#0d4a2c 50%,#1a3a2a 100%)',
+  'linear-gradient(135deg,#0f1f3d 0%,#1a3a6c 50%,#0d2a5a 100%)',
+  'linear-gradient(135deg,#2a1a0a 0%,#5a3010 50%,#3a2010 100%)',
+];
+let heroIdx=0,heroTimer;
+
+heroProjects.forEach((p,i)=>{
+  const slide=document.createElement('div');
+  slide.className='hero-slide';
+  slide.style.background=heroColors[i%heroColors.length];
+  slide.onclick=()=>openDetail(p.id);
+  slide.innerHTML=`
+    <div class="hero-slide-overlay"></div>
+    <div class="hero-slide-badge"><span class="update-dot"></span> Update available</div>
+    <div class="hero-slide-content">
+      <div class="hero-app-row">
+        <div class="hero-app-icon" style="font-size:32px">${p.icon}</div>
+        <div class="hero-app-info">
+          <div class="hero-app-name">${p.name}</div>
+          <div class="hero-app-dev">${p.dev} · ${p.cat}</div>
+          <div class="hero-app-rating">
+            <span style="color:#fdd663">★</span> ${p.rating} · ${p.reviews} reviews
+          </div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,.82);margin-bottom:14px;line-height:1.5">${p.tagline}</div>
+      <div class="hero-actions">
+        <button class="hero-install-btn green" onclick="event.stopPropagation();openDetail('${p.id}')">View Project</button>
+        <button class="hero-wish-btn" onclick="event.stopPropagation();alert('Added to wishlist!')">Wishlist</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('heroTrack').appendChild(slide);
+  const dot=document.createElement('div');
+  dot.className='hero-dot'+(i===0?' active':'');
+  dot.onclick=e=>{e.stopPropagation();goHero(i)};
+  document.getElementById('heroIndicators').appendChild(dot);
+});
+function goHero(idx){
+  heroIdx=idx;
+  document.getElementById('heroTrack').style.transform=`translateX(-${idx*100}%)`;
+  document.querySelectorAll('.hero-dot').forEach((d,i)=>d.className='hero-dot'+(i===idx?' active':''));
+}
+function moveHero(dir){heroIdx=(heroIdx+dir+heroProjects.length)%heroProjects.length;goHero(heroIdx);}
+const hw=document.querySelector('.hero-track-wrap');
+hw.addEventListener('mouseenter',()=>clearInterval(heroTimer));
+hw.addEventListener('mouseleave',startHeroAuto);
+function startHeroAuto(){heroTimer=setInterval(()=>moveHero(1),4500)}
+startHeroAuto();
+
+// ===== CARD BUILDERS =====
+function starStr(r){return '★'.repeat(Math.floor(r))+'☆'.repeat(5-Math.floor(r))}
+
+function makeSquareCard(p){
+  const el=document.createElement('div');
+  el.className='app-sq';
+  el.onclick=()=>openDetail(p.id);
+  el.innerHTML=`
+    <div class="app-sq-icon">${p.icon}</div>
+    <div class="app-sq-name">${p.name}</div>
+    <div class="app-sq-rating"><span class="star">★</span>${p.rating}</div>
+  `;
+  return el;
+}
+function makeWideCard(p){
+  const el=document.createElement('div');
+  el.className='app-wide';
+  el.onclick=()=>openDetail(p.id);
+  el.innerHTML=`
+    <div class="app-wide-img" style="background:${heroColors[PROJECTS.indexOf(p)%3]};color:#fff">${p.thumb}</div>
+    <div class="app-wide-body">
+      <div class="app-wide-row">
+        <div class="app-wide-icon">${p.icon}</div>
+        <div class="app-wide-info">
+          <div class="name">${p.name}</div>
+          <div class="sub">${p.cat}</div>
+          <div class="rating"><span class="star">★</span>${p.rating} · ${p.reviews}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  return el;
+}
+function makePromoCard(p){
+  const el=document.createElement('div');
+  el.className='promo-card';
+  el.onclick=()=>openDetail(p.id);
+  const colors=['linear-gradient(135deg,#1a2e22,#0d4a2c)','linear-gradient(135deg,#0f1f3d,#1a3a6c)','linear-gradient(135deg,#2a1020,#5a1040)','linear-gradient(135deg,#1a1a0a,#4a3a00)'];
+  el.innerHTML=`
+    <div class="promo-card-bg" style="background:${colors[PROJECTS.indexOf(p)%4]};color:transparent">.</div>
+    <div class="promo-card-overlay"></div>
+    <div style="position:absolute;top:14px;left:14px;font-size:48px">${p.icon}</div>
+    <button class="promo-card-btn" onclick="event.stopPropagation();openDetail('${p.id}')">Install</button>
+    <div class="promo-card-content">
+      <div class="promo-card-badge">Editor's choice · ${p.cat}</div>
+      <div class="promo-card-name">${p.name}</div>
+      <div class="promo-card-sub">${p.tagline.substring(0,50)}${p.tagline.length>50?'…':''}</div>
+    </div>
+  `;
+  return el;
+}
+function fill(id,projects,type='wide'){
+  const el=document.getElementById(id);
+  if(!el)return;
+  projects.forEach(p=>el.appendChild(type==='sq'?makeSquareCard(p):type==='promo'?makePromoCard(p):makeWideCard(p)));
+}
+
+// Populate all sections
+fill('scrollRec', PROJECTS.slice().sort(()=>Math.random()-.5).slice(0,7), 'sq');
+fill('scrollFeatured', PROJECTS.filter(p=>p.category.includes('featured')));
+fill('scrollFlutter', PROJECTS.filter(p=>p.category.includes('flutter')&&!p.category.includes('featured')));
+fill('scrollAI', PROJECTS.filter(p=>p.category.includes('ai')));
+fill('scrollBecause', PROJECTS.filter(p=>p.tags.includes('backend')||p.tags.includes('ai')));
+fill('scrollResearch', PROJECTS.filter(p=>p.category.includes('research')));
+fill('scrollPromo', PROJECTS.filter(p=>p.featured||p.category.includes('research')), 'promo');
+
+// ===== TOP CHARTS =====
+const chartData = {
+  free: PROJECTS.filter(p=>p.price==='Free').sort((a,b)=>b.rating-a.rating),
+  grossing: PROJECTS.sort((a,b)=>parseInt(b.downloads)-parseInt(a.downloads)),
+  paid: PROJECTS.filter(p=>p.price==='Research'),
+};
+let currentChart='free';
+function switchChartTab(type,btn){
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  currentChart=type;
+  renderCharts();
+}
+function renderCharts(){
+  const list=document.getElementById('chartsList');
+  const data=chartData[currentChart]||PROJECTS;
+  list.innerHTML='';
+  data.slice(0,8).forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='chart-row';
+    row.onclick=()=>openDetail(p.id);
+    row.innerHTML=`
+      <div class="chart-rank">${i+1}</div>
+      <div class="chart-icon">${p.icon}</div>
+      <div class="chart-info">
+        <div class="chart-name">${p.name}</div>
+        <div class="chart-cat">${p.cat}</div>
+        <div class="chart-rating"><span class="star">★</span>${p.rating}</div>
+      </div>
+      <button class="chart-btn${p.price!=='Free'?' price':''}" onclick="event.stopPropagation();openDetail('${p.id}')">${p.price==='Free'?'Install':p.price}</button>
+    `;
+    list.appendChild(row);
+  });
+}
+renderCharts();
+
+// ===== DETAIL PAGE =====
+function makeStars(r){
+  let s='';
+  for(let i=1;i<=5;i++)s+=`<span class="rating-star" style="color:${i<=Math.round(r)?'#f9ab00':'var(--text3)'}">★</span>`;
+  return s;
+}
+function openDetail(id){
+  if(id==='about'){
+    openAboutDetail();return;
+  }
+  const p=PROJECTS.find(x=>x.id===id);
+  if(!p)return;
+
+  const ss=p.screenshots.map(s=>`<div class="screenshot">${s}</div>`).join('');
+  const chips=p.tech.map(t=>`<span class="chip ${chipClass(t)}">${t}</span>`).join('');
+  const features=p.features.map(f=>`<div class="feature-item"><div class="feature-dot"></div><span>${f}</span></div>`).join('');
+
+  document.getElementById('detailContent').innerHTML=`
+    <div class="app-header">
+      <div class="app-header-icon" style="font-size:52px">${p.icon}</div>
+      <div class="app-header-info">
+        <div class="app-header-name">${p.name}</div>
+        <div class="app-header-dev">${p.dev}</div>
+        <div class="app-header-cat">${p.cat} · Contains ads</div>
+        <div class="app-header-actions">
+          ${p.links.play?`<button class="install-btn" onclick="alert('Opening Play Store...')">Install</button>`:''}
+          ${p.links.demo?`<button class="install-btn" onclick="alert('Opening demo...')">Open</button>`:''}
+          ${p.links.github?`<button class="install-btn outline" onclick="alert('Opening GitHub...')">&lt;/&gt; Source</button>`:''}
+          ${p.links.youtube?`<button class="install-btn outline" onclick="alert('Opening YouTube...')">▶ YouTube</button>`:''}
+          <button class="wishlist-btn" onclick="this.style.color='var(--red)';this.style.borderColor='var(--red)'">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ratings-bar">
+      <div class="rating-section">
+        <div class="rating-big">${p.rating}</div>
+        <div class="rating-stars-row">${makeStars(p.rating)}</div>
+        <div class="rating-label">${p.reviews} reviews</div>
+      </div>
+      <div class="rating-section">
+        <div class="rating-big">${p.downloads}</div>
+        <div style="height:18px"></div>
+        <div class="rating-label">Downloads</div>
+      </div>
+      <div class="rating-section">
+        <div style="font-size:36px;line-height:1">${p.icon}</div>
+        <div style="height:4px"></div>
+        <div class="rating-label">Rated ${p.price==='Free'?'E':'R'} for everyone</div>
+      </div>
+    </div>
+
+    <div class="screenshots-wrap">
+      <div style="font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;margin-bottom:12px;color:var(--text)">Screenshots</div>
+      <div class="screenshots-scroll">${ss}</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-header" onclick="toggleSection(this)">
+        <span class="about-section-title">About this app</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="about-body">${p.desc}</div>
+      <div class="tags-row">${chips}</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-header" onclick="toggleSection(this)">
+        <span class="about-section-title">Key features</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="about-features">${features}</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-header" onclick="toggleSection(this)">
+        <span class="about-section-title">What's new</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="whats-new">
+        <div class="version-label">Version ${p.version} · ${p.updated}</div>
+        ${p.whatsNew}
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-header" onclick="toggleSection(this)">
+        <span class="about-section-title">App info</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="info-grid">
+        <div class="info-cell"><div class="info-cell-label">Version</div><div class="info-cell-val">${p.version}</div></div>
+        <div class="info-cell"><div class="info-cell-label">Updated</div><div class="info-cell-val">${p.updated}</div></div>
+        <div class="info-cell"><div class="info-cell-label">Size</div><div class="info-cell-val">${p.size}</div></div>
+        <div class="info-cell"><div class="info-cell-label">Developer</div><div class="info-cell-val">Niranjan Dahal</div></div>
+        <div class="info-cell"><div class="info-cell-label">Category</div><div class="info-cell-val">${p.cat}</div></div>
+        <div class="info-cell"><div class="info-cell-label">Price</div><div class="info-cell-val">${p.price}</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px">
+      <div style="font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;margin-bottom:14px;color:var(--text)">More by Niranjan Dahal</div>
+      <div class="h-scroll" id="detailMore"></div>
+    </div>
+  `;
+
+  // Fill "more by developer"
+  const moreEl=document.getElementById('detailMore');
+  PROJECTS.filter(x=>x.id!==id).slice(0,5).forEach(x=>moreEl.appendChild(makeWideCard(x)));
+
+  document.getElementById('stickyCta').className='sticky-cta visible';
+  document.getElementById('stickyCta').innerHTML=`
+    <div class="sticky-cta-app">
+      <div class="sticky-cta-icon">${p.icon}</div>
+      <div>
+        <div class="sticky-cta-name">${p.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${p.cat} · ${p.rating}★</div>
+      </div>
+    </div>
+    ${p.links.play||p.links.demo?`<button class="install-btn" onclick="alert('Installing...')" style="padding:9px 24px;font-size:14px">Install</button>`:''}
+    ${p.links.github?`<button class="install-btn outline" onclick="alert('Opening source...')" style="padding:9px 18px;font-size:14px">Source</button>`:''}
+  `;
+
+  document.getElementById('detailPage').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('detailPage').scrollTop=0;
+}
+
+function openAboutDetail(){
+  document.getElementById('detailContent').innerHTML=`
+    <div style="max-width:600px">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;flex-wrap:wrap">
+        <div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#01875f,#34a853);display:flex;align-items:center;justify-content:center;color:#fff;font-size:36px;font-weight:700;flex-shrink:0">ND</div>
+        <div>
+          <div style="font-family:'Google Sans Display',sans-serif;font-size:26px;font-weight:700;color:var(--text)">Niranjan Dahal</div>
+          <div style="font-size:14px;color:var(--green);font-weight:500;margin:4px 0">Flutter Engineer & AI Developer</div>
+          <div style="font-size:13px;color:var(--text2)">Pokhara / Kathmandu, Nepal · IOE WRC</div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)">
+          <div style="text-align:center;padding:16px;border-right:1px solid var(--border)">
+            <div style="font-family:'Google Sans',sans-serif;font-size:24px;font-weight:700;color:var(--text)">9</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Projects</div>
+          </div>
+          <div style="text-align:center;padding:16px;border-right:1px solid var(--border)">
+            <div style="font-family:'Google Sans',sans-serif;font-size:24px;font-weight:700;color:var(--text)">3+</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Years</div>
+          </div>
+          <div style="text-align:center;padding:16px">
+            <div style="font-family:'Google Sans',sans-serif;font-size:24px;font-weight:700;color:var(--text)">2</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Grants</div>
+          </div>
+        </div>
+        <div style="padding:20px;font-size:14px;color:var(--text2);line-height:1.72">
+          I build high-performance Flutter & AI products — from enterprise lab platforms handling 20K+ samples/day to blockchain-based CBDC apps with national research grants. Specializing in clean architecture, state management, and production-grade mobile apps.
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-family:'Google Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text)">Skills</div>
+        <div style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:8px">
+          ${['Flutter','Dart','Firebase','Supabase','Bloc','Riverpod','Clean Architecture','Node.js','Python','ResNet50','VGG16','TensorFlow','CI/CD','Azure','PostgreSQL','SQLite'].map(s=>`<span class="chip">${s}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="mailto:niranjandahal76@gmail.com" style="flex:1;min-width:140px;background:var(--green);color:#fff;border-radius:100px;padding:12px 24px;font-size:14px;font-weight:500;text-align:center;cursor:pointer;display:block">Email Me</a>
+        <a href="tel:+9779864117880" style="flex:1;min-width:140px;background:var(--surface2);color:var(--text);border-radius:100px;padding:12px 24px;font-size:14px;font-weight:500;text-align:center;cursor:pointer;display:block;border:1px solid var(--border)">Call</a>
+      </div>
+    </div>
+  `;
+  document.getElementById('stickyCta').className='sticky-cta';
+  document.getElementById('detailPage').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('detailPage').scrollTop=0;
+}
+
+function closeDetail(){
+  document.getElementById('detailPage').classList.remove('open');
+  document.getElementById('stickyCta').className='sticky-cta';
+  document.body.style.overflow='';
+}
+function toggleSection(header){
+  const next=header.nextElementSibling;
+  const icon=header.querySelector('svg');
+  const isOpen=next.style.display!=='none'&&next.style.display!=='';
+  // default open
+  if(!next.dataset.init){next.dataset.init='true';return;}
+  next.style.display=isOpen?'none':'';
+  icon.style.transform=isOpen?'rotate(-90deg)':'';
+}
+
+// ===== CHIP CLASS =====
+function chipClass(t){
+  const m={Flutter:'flutter',Firebase:'firebase',Python:'ai',TensorFlow:'ai',ResNet50:'ai',VGG16:'ai',Blockchain:'backend','Node.js':'backend',Research:'research','Realtime DB':'backend','Google Maps':'backend',GetX:'flutter',Riverpod:'flutter',Bloc:'flutter',Dart:'flutter'};
+  return m[t]||'';
+}
+
+// ===== SEARCH =====
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('searchInput').focus(),100);
+}
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function doSearch(q){
+  const label=document.getElementById('searchLabel');
+  const grid=document.getElementById('searchGrid');
+  if(!q.trim()){label.textContent='';grid.innerHTML='';return;}
+  const ql=q.toLowerCase();
+  const m=PROJECTS.filter(p=>
+    p.name.toLowerCase().includes(ql)||p.tagline.toLowerCase().includes(ql)||
+    p.tags.some(t=>t.includes(ql))||p.tech.some(t=>t.toLowerCase().includes(ql))||
+    p.cat.toLowerCase().includes(ql)||p.desc.toLowerCase().includes(ql)
+  );
+  label.textContent=m.length+' result'+(m.length!==1?'s':'')+' for "'+q+'"';
+  grid.innerHTML='';
+  if(!m.length){
+    grid.innerHTML='<div class="no-results"><div class="no-results-icon">🔍</div><p>No results for "'+q+'"</p><span>Try: flutter, AI, firebase, blockchain, research</span></div>';
+    return;
+  }
+  m.forEach(p=>grid.appendChild(makeWideCard(p)));
+}
+
+// ===== CATEGORY FILTER =====
+function filterCat(cat,tab){
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  if(tab)tab.classList.add('active');
+
+  const main=document.getElementById('mainContent');
+  if(cat==='all'){
+    main.innerHTML='';
+    rebuildMain();
+    return;
+  }
+
+  const matched=cat==='charts'
+    ?PROJECTS
+    :PROJECTS.filter(p=>p.tags.includes(cat)||p.category.includes(cat));
+
+  main.innerHTML=`
+    <div style="padding:24px">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">${matched.length} apps</p>
+      <div class="search-results-grid" style="padding:0" id="catGrid"></div>
+    </div>
+  `;
+  const g=document.getElementById('catGrid');
+  matched.forEach(p=>g.appendChild(makeWideCard(p)));
+}
+
+function sidebarNav(btn,cat){
+  document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCat(cat,null);
+}
+
+function rebuildMain(){
+  document.getElementById('mainContent').innerHTML=`
+    <div class="hero-banner" id="heroBanner">
+      <div class="hero-track-wrap">
+        <div class="hero-track" id="heroTrack"></div>
+        <button class="hero-prev" onclick="moveHero(-1)">&#8249;</button>
+        <button class="hero-next" onclick="moveHero(1)">&#8250;</button>
+        <div class="hero-indicators" id="heroIndicators"></div>
+      </div>
+    </div>
+    <div class="section" id="sectionCharts">
+      <div class="section-header"><span class="section-title">Top charts</span><button class="see-more-btn">See more</button></div>
+      <div class="charts-tabs">
+        <button class="chart-tab active" onclick="switchChartTab('free',this)">Top free</button>
+        <button class="chart-tab" onclick="switchChartTab('grossing',this)">Top grossing</button>
+        <button class="chart-tab" onclick="switchChartTab('paid',this)">Top paid</button>
+      </div>
+      <div id="chartsList"></div>
+    </div>
+    <div class="section"><div class="section-header"><span class="section-title">Recommended for you</span></div><div class="h-scroll" id="scrollRec"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">🚀 Featured Projects</span><button class="see-more-btn" onclick="filterCat('featured',null)">See more</button></div><div class="h-scroll" id="scrollFeatured"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">📱 Flutter Apps</span></div><div class="h-scroll" id="scrollFlutter"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">🧠 AI &amp; ML</span></div><div class="h-scroll" id="scrollAI"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">Because you build with Flutter</span></div><div class="h-scroll" id="scrollBecause"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">🔬 Research &amp; Grants</span></div><div class="h-scroll" id="scrollResearch"></div></div>
+    <div class="section"><div class="section-header"><span class="section-title">Editor's choice</span></div><div class="h-scroll" id="scrollPromo"></div></div>
+    <div style="height:40px"></div>
+  `;
+  // Re-init hero
+  heroProjects.forEach((p,i)=>{
+    const slide=document.createElement('div');
+    slide.className='hero-slide';
+    slide.style.background=heroColors[i%heroColors.length];
+    slide.onclick=()=>openDetail(p.id);
+    slide.innerHTML=`<div class="hero-slide-overlay"></div><div class="hero-slide-badge"><span class="update-dot"></span> Update available</div><div class="hero-slide-content"><div class="hero-app-row"><div class="hero-app-icon" style="font-size:32px">${p.icon}</div><div class="hero-app-info"><div class="hero-app-name">${p.name}</div><div class="hero-app-dev">${p.dev} · ${p.cat}</div><div class="hero-app-rating"><span style="color:#fdd663">★</span> ${p.rating} · ${p.reviews} reviews</div></div></div><div style="font-size:13px;color:rgba(255,255,255,.82);margin-bottom:14px;line-height:1.5">${p.tagline}</div><div class="hero-actions"><button class="hero-install-btn green" onclick="event.stopPropagation();openDetail('${p.id}')">View Project</button><button class="hero-wish-btn" onclick="event.stopPropagation();alert('Added!')">Wishlist</button></div></div>`;
+    document.getElementById('heroTrack').appendChild(slide);
+    const dot=document.createElement('div');
+    dot.className='hero-dot'+(i===0?' active':'');
+    dot.onclick=e=>{e.stopPropagation();goHero(i)};
+    document.getElementById('heroIndicators').appendChild(dot);
+  });
+  const hw2=document.querySelector('.hero-track-wrap');
+  if(hw2){hw2.addEventListener('mouseenter',()=>clearInterval(heroTimer));hw2.addEventListener('mouseleave',startHeroAuto);}
+  renderCharts();
+  fill('scrollRec',PROJECTS.slice().sort(()=>Math.random()-.5).slice(0,7),'sq');
+  fill('scrollFeatured',PROJECTS.filter(p=>p.category.includes('featured')));
+  fill('scrollFlutter',PROJECTS.filter(p=>p.category.includes('flutter')&&!p.category.includes('featured')));
+  fill('scrollAI',PROJECTS.filter(p=>p.category.includes('ai')));
+  fill('scrollBecause',PROJECTS.filter(p=>p.tags.includes('backend')||p.tags.includes('ai')));
+  fill('scrollResearch',PROJECTS.filter(p=>p.category.includes('research')));
+  fill('scrollPromo',PROJECTS.filter(p=>p.featured||p.category.includes('research')),'promo');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('detailPage').classList.contains('open'))closeDetail();
+    else if(document.getElementById('searchOverlay').classList.contains('open'))closeSearch();
+  }
+});
+</script>
+</body>
+</html>
