@@ -238,6 +238,41 @@ body{font-family:Roboto,sans-serif;background:var(--bg);color:var(--text);min-he
 /* TOAST */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#202124;color:#fff;padding:11px 22px;border-radius:24px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* TAB VIEWS */
+.tab-view{display:none}
+.tab-view.active{display:block}
+@keyframes tabFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tab-view.active{animation:tabFadeIn .28s ease}
+
+/* SKELETON */
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skeleton-base{border-radius:8px;animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:600px 100%}
+.sk-hero{height:176px;border-radius:14px;margin-bottom:12px;flex-shrink:0;min-width:300px}
+.sk-section-title{height:18px;width:140px;margin:20px 20px 14px}
+.sk-app-wrap{display:flex;gap:12px;padding:0 20px 14px}
+.sk-app{display:flex;flex-direction:column;align-items:center;gap:7px;width:92px;flex-shrink:0}
+.sk-app-icon{width:92px;height:92px;border-radius:22px}
+.sk-app-name{height:10px;width:70px;border-radius:5px}
+.sk-app-sub{height:9px;width:50px;border-radius:5px}
+.sk-chart-item{display:flex;align-items:center;gap:14px;padding:11px 20px}
+.sk-chart-icon{width:54px;height:54px;border-radius:14px;flex-shrink:0}
+.sk-chart-lines{flex:1;display:flex;flex-direction:column;gap:7px}
+.sk-line-a{height:13px;width:65%;border-radius:6px}
+.sk-line-b{height:11px;width:45%;border-radius:6px}
+.sk-btn{height:30px;width:60px;border-radius:20px;flex-shrink:0}
+
+/* GAMES / KIDS SPECIAL BADGES */
+.games-banner{margin:16px 20px 0;border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#1a0a2e,#3d1a6e);border:1px solid #6200ea44;position:relative;overflow:hidden}
+.games-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(170,0,255,.18) 0%,transparent 70%)}
+.games-banner-title{font-size:18px;font-weight:700;color:#e0d0ff;margin-bottom:4px;position:relative}
+.games-banner-sub{font-size:13px;color:#b39ddb;position:relative}
+.games-banner-emoji{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:48px;opacity:.7}
+.kids-banner{margin:16px 20px 0;border-radius:14px;padding:18px 20px;background:linear-gradient(135deg,#0a2a1a,#1a5c3a);border:1px solid #34a85344;position:relative;overflow:hidden}
+.kids-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(52,168,83,.18) 0%,transparent 70%)}
+.kids-banner-title{font-size:18px;font-weight:700;color:#b9f6ca;margin-bottom:4px;position:relative}
+.kids-banner-sub{font-size:13px;color:#81c995;position:relative}
+.kids-banner-emoji{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:48px;opacity:.7}
 </style>
 </head>
 <body data-theme="dark">
@@ -330,7 +365,8 @@ body{font-family:Roboto,sans-serif;background:var(--bg);color:var(--text);min-he
   <!-- SEARCH PANEL -->
   <div class="search-panel" id="searchPanel"></div>
 
-  <!-- HOME -->
+  <!-- APPS TAB -->
+  <div class="tab-view active" id="tabViewApps">
   <div class="home-view" id="homeView">
     <div class="hero-wrap">
       <div class="hero-scroll" id="heroScroll"></div>
@@ -403,10 +439,22 @@ body{font-family:Roboto,sans-serif;background:var(--bg);color:var(--text);min-he
         <a class="link-pill" href="mailto:niranjandahal76@gmail.com">✉ Email</a>
         <a class="link-pill" href="https://github.com/niranjandahal" target="_blank">⌥ GitHub</a>
         <a class="link-pill" href="https://linkedin.com/in/niranjan-dahal-77463021a" target="_blank">in LinkedIn</a>
-        <a class="link-pill" href="https://youtube.com/@fluttertip" target="_blank">▶ YouTube</a>
+        <a class="link-pill" href="https://youtube.com/@fluttertip" target="_blank">&#9654; YouTube</a>
       </div>
     </div>
   </div>
+  </div><!-- end tabViewApps -->
+
+  <!-- GAMES TAB -->
+  <div class="tab-view" id="tabViewGames">
+    <div id="gamesContent"></div>
+  </div>
+
+  <!-- KIDS TAB -->
+  <div class="tab-view" id="tabViewKids">
+    <div id="kidsContent"></div>
+  </div>
+
 </div>
 
 <!-- CHARTS PAGE -->
@@ -606,12 +654,110 @@ function scrollToSection(id){
   if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
+// ── Skeleton helpers ──────────────────────────────────────────────
+function skHeroRow(){
+  var h='<div style="padding:16px 20px 0"><div style="display:flex;gap:12px;overflow:hidden">';
+  for(var i=0;i<3;i++)h+='<div class="skeleton-base sk-hero"></div>';
+  return h+'</div></div>';
+}
+function skAppRow(){
+  var h='<div class="sk-section-title skeleton-base"></div><div class="sk-app-wrap">';
+  for(var i=0;i<6;i++)h+='<div class="sk-app"><div class="skeleton-base sk-app-icon"></div><div class="skeleton-base sk-app-name"></div><div class="skeleton-base sk-app-sub"></div></div>';
+  return h+'</div>';
+}
+function skChartRows(){
+  var h='<div style="padding:16px 20px 8px"><div class="skeleton-base" style="height:16px;width:100px;border-radius:6px"></div></div>';
+  for(var i=0;i<5;i++)h+='<div class="sk-chart-item"><div class="skeleton-base sk-chart-icon"></div><div class="sk-chart-lines"><div class="skeleton-base sk-line-a"></div><div class="skeleton-base sk-line-b"></div></div><div class="skeleton-base sk-btn"></div></div>';
+  return h;
+}
+
+// ── Games & Kids project data ──────────────────────────────────────
+var GAMES_PROJECTS=[
+  {id:'bhagchal',name:'BhagChal Multiplayer',dev:'Flutter \u00b7 Firebase',tagline:'Real-time Nepali board game \u00b7 tigers vs goats',storeLabel:'View Preview',storeUrl:'https://bhagchal.vercel.app/',codeUrl:'https://github.com/niranjandahal',desc:'Cross-platform real-time multiplayer BhagChal.',bullets:['Real-time multiplayer via Firebase Streams','Traditional Nepali BhagChal rules','Cross-platform iOS, Android, Web'],tags:['Flutter','Firebase','Strategy'],cat:['multiplayer'],rating:4.8,metric:'Realtime',metricLbl:'Multiplayer',stack:['Flutter','Dart','Firebase','Provider'],icon:'linear-gradient(135deg,#6200ea,#aa00ff)',emoji:'\u265f\ufe0f',featured:false,sc:['#ede7f6','#d1c4e9','#b39ddb']},
+  {id:'vrtourism',name:'VR Tourism App',dev:'Flutter \u00b7 VR',tagline:'360\u00b0 Nepal exploration \u00b7 hackathon runner-up',storeLabel:'View on GitHub',storeUrl:'https://github.com/niranjandahal/VR_Application_Flutter',codeUrl:'https://github.com/niranjandahal/VR_Application_Flutter',desc:'Built in 24 hours, won runner-up.',bullets:['Immersive 360\u00b0 panoramic viewer','VR headset compatible','Built in 24 hours, runner-up award'],tags:['Flutter','VR','Hackathon'],cat:['flutter'],rating:4.5,metric:'Runner-up',metricLbl:'Hackathon',stack:['Flutter','Dart','panoramic_viewer'],icon:'linear-gradient(135deg,#00796b,#26a69a)',emoji:'\ud83e\udd7d',featured:false,sc:['#e0f2f1','#b2dfdb','#80cbc4']},
+  {id:'quizapp',name:'Quiz App',dev:'Flutter \u00b7 Firebase',tagline:'Interactive quizzes with scoring and categories',storeLabel:'View Preview',storeUrl:'https://quiz-app-9o6d.vercel.app/',codeUrl:'https://github.com/niranjandahal',desc:'A fun quiz app with multiple categories.',bullets:['Multiple categories','Timed questions','Score tracking'],tags:['Flutter','Quiz','Game'],cat:['flutter'],rating:4.3,metric:'Multi',metricLbl:'Categories',stack:['Flutter','Dart','Firebase'],icon:'linear-gradient(135deg,#1565c0,#42a5f5)',emoji:'\u2753',featured:false,sc:['#e3f2fd','#bbdefb','#90caf9']}
+];
+
+var KIDS_PROJECTS=[
+  {id:'elearning',name:'E-Learning App',dev:'Flutter \u00b7 Firebase',tagline:'Online learning with courses and progress tracking',storeLabel:'View Preview',storeUrl:'https://elarn.vercel.app/',codeUrl:'https://github.com/niranjandahal',desc:'A Flutter e-learning app with course listings and progress tracking.',bullets:['Course catalog with categories','Video lesson player','Progress tracking'],tags:['Flutter','EdTech','Kids'],cat:['flutter'],rating:4.3,metric:'EdTech',metricLbl:'Platform',stack:['Flutter','Dart','Firebase'],icon:'linear-gradient(135deg,#4527a0,#7e57c2)',emoji:'\ud83d\udcda',featured:false,sc:['#ede7f6','#d1c4e9','#b39ddb']},
+  {id:'quizapp',name:'Quiz App',dev:'Flutter \u00b7 Firebase',tagline:'Fun quizzes for learning and practice',storeLabel:'View Preview',storeUrl:'https://quiz-app-9o6d.vercel.app/',codeUrl:'https://github.com/niranjandahal',desc:'Interactive quiz app great for kids and students.',bullets:['Kid-friendly categories','Timed questions with fun UI','Instant score results'],tags:['Flutter','Quiz','Learning'],cat:['flutter'],rating:4.3,metric:'Fun',metricLbl:'Learning',stack:['Flutter','Dart','Firebase'],icon:'linear-gradient(135deg,#1565c0,#42a5f5)',emoji:'\u2753',featured:false,sc:['#e3f2fd','#bbdefb','#90caf9']},
+  {id:'mvpshowcase',name:'MVP Showcase',dev:'Flutter \u00b7 Various',tagline:'Collection of fun app prototypes',storeLabel:'View Preview',storeUrl:'https://showcase-tau-blond.vercel.app/',codeUrl:'https://github.com/niranjandahal',desc:'A curated collection of MVP apps and creative prototypes.',bullets:['Multiple creative apps','Fun UI experiments','Live preview links'],tags:['Flutter','Creative','Fun'],cat:['flutter'],rating:4.2,metric:'Multi',metricLbl:'Showcase',stack:['Flutter','Dart'],icon:'linear-gradient(135deg,#00695c,#26a69a)',emoji:'\ud83d\uddc2\ufe0f',featured:false,sc:['#e0f2f1','#b2dfdb','#80cbc4']}
+];
+
+// ── Hero card builder for tab views (uses double-quotes inside) ───
+function tabHeroCard(id,bg,emoji,badge,title,sub,btnLabel,btnUrl){
+  return '<div class="hero-card" onclick="openDetail(\''+id+'\')">'
+    +'<div class="hero-bg" style="background:'+bg+'">'+emoji+'<div class="hero-ovl"></div></div>'
+    +'<div class="hero-info"><span class="hero-badge">'+badge+'</span>'
+    +'<div class="hero-title">'+title+'</div>'
+    +'<div class="hero-sub">'+sub+'</div></div>'
+    +'<button class="hero-btn" onclick="event.stopPropagation();window.open(\''+btnUrl+'\',\'_blank\')">'+btnLabel+'</button>'
+    +'</div>';
+}
+
+// ── Render Games tab ───────────────────────────────────────────────
+function renderGamesTab(){
+  var el=document.getElementById('gamesContent');
+  if(!el)return;
+  el.innerHTML='<div class="games-banner"><div class="games-banner-title">\ud83c\udfae Game Projects</div><div class="games-banner-sub">Real-time multiplayer \u00b7 VR \u00b7 Interactive experiences</div><div class="games-banner-emoji">\u265f\ufe0f</div></div>'+skHeroRow()+skAppRow()+skChartRows();
+  setTimeout(function(){
+    var html='<div class="games-banner"><div class="games-banner-title">\ud83c\udfae Game Projects</div><div class="games-banner-sub">Real-time multiplayer \u00b7 VR \u00b7 Interactive experiences</div><div class="games-banner-emoji">\u265f\ufe0f</div></div>';
+    html+='<div class="hero-wrap" style="margin-top:16px"><div class="hero-scroll">';
+    html+=tabHeroCard('bhagchal','linear-gradient(135deg,#6200ea,#aa00ff)','\u265f\ufe0f','Multiplayer','BhagChal \u2014 Real-time Board Game','Traditional Nepali strategy game \u00b7 Firebase Streams','View','https://bhagchal.vercel.app/');
+    html+=tabHeroCard('vrtourism','linear-gradient(135deg,#00796b,#26a69a)','\ud83e\udd7d','Hackathon Runner-up','VR Tourism App','360\u00b0 Nepal exploration \u00b7 built in 24hrs','GitHub','https://github.com/niranjandahal/VR_Application_Flutter');
+    html+=tabHeroCard('quizapp','linear-gradient(135deg,#1565c0,#42a5f5)','\u2753','Interactive','Quiz App','Fun quizzes \u00b7 categories \u00b7 scoring','View','https://quiz-app-9o6d.vercel.app/');
+    html+='</div></div>';
+    html+='<div class="divider"></div>';
+    html+='<div class="section"><div class="sec-head"><span class="sec-title">\ud83d\udd79\ufe0f All Game Projects</span></div><div class="h-scroll">';
+    for(var i=0;i<GAMES_PROJECTS.length;i++)html+=appCard(GAMES_PROJECTS[i]);
+    html+='</div></div>';
+    html+='<div class="divider"></div>';
+    html+='<div class="section"><div class="sec-head"><span class="sec-title">\ud83c\udfc6 Top Rated</span></div>';
+    for(var j=0;j<GAMES_PROJECTS.length;j++)html+=chartItem(GAMES_PROJECTS[j],j+1);
+    html+='</div>';
+    el.innerHTML=html;
+  },700);
+}
+
+// ── Render Kids tab ────────────────────────────────────────────────
+function renderKidsTab(){
+  var el=document.getElementById('kidsContent');
+  if(!el)return;
+  el.innerHTML='<div class="kids-banner"><div class="kids-banner-title">\ud83d\udc76 Kids &amp; Learning</div><div class="kids-banner-sub">Educational apps \u00b7 Fun interactions \u00b7 Safe for all ages</div><div class="kids-banner-emoji">\ud83d\udcda</div></div>'+skHeroRow()+skAppRow()+skChartRows();
+  setTimeout(function(){
+    var html='<div class="kids-banner"><div class="kids-banner-title">\ud83d\udc76 Kids &amp; Learning</div><div class="kids-banner-sub">Educational apps \u00b7 Fun interactions \u00b7 Safe for all ages</div><div class="kids-banner-emoji">\ud83d\udcda</div></div>';
+    html+='<div class="hero-wrap" style="margin-top:16px"><div class="hero-scroll">';
+    html+=tabHeroCard('elearning','linear-gradient(135deg,#4527a0,#7e57c2)','\ud83d\udcda','EdTech','E-Learning App','Courses \u00b7 progress tracking \u00b7 video lessons','View','https://elarn.vercel.app/');
+    html+=tabHeroCard('quizapp','linear-gradient(135deg,#1565c0,#42a5f5)','\u2753','Interactive','Quiz App','Fun quizzes \u00b7 categories \u00b7 scoring','View','https://quiz-app-9o6d.vercel.app/');
+    html+=tabHeroCard('mvpshowcase','linear-gradient(135deg,#00695c,#26a69a)','\ud83d\uddc2\ufe0f','Showcase','MVP Apps','Creative prototypes and experiments','View','https://showcase-tau-blond.vercel.app/');
+    html+='</div></div>';
+    html+='<div class="divider"></div>';
+    html+='<div class="section"><div class="sec-head"><span class="sec-title">\ud83c\udf1f Kids Apps</span></div><div class="h-scroll">';
+    for(var i=0;i<KIDS_PROJECTS.length;i++)html+=appCard(KIDS_PROJECTS[i]);
+    html+='</div></div>';
+    html+='<div class="divider"></div>';
+    html+='<div class="section"><div class="sec-head"><span class="sec-title">\u2b50 Top Picks</span></div>';
+    for(var j=0;j<KIDS_PROJECTS.length;j++)html+=chartItem(KIDS_PROJECTS[j],j+1);
+    html+='</div>';
+    el.innerHTML=html;
+  },700);
+}
+
+// ── Switch tab ─────────────────────────────────────────────────────
 function switchTab(tab){
   var tabs=['apps','games','kids'];
   for(var i=0;i<tabs.length;i++){
-    var el=document.getElementById('tab-'+tabs[i]);
-    if(el)el.classList.toggle('active',tabs[i]===tab);
+    var btn=document.getElementById('tab-'+tabs[i]);
+    if(btn)btn.classList.toggle('active',tabs[i]===tab);
+    var cap=tabs[i].charAt(0).toUpperCase()+tabs[i].slice(1);
+    var view=document.getElementById('tabView'+cap);
+    if(view)view.classList.toggle('active',tabs[i]===tab);
   }
+  var chipsBar=document.getElementById('chipsBar');
+  if(chipsBar)chipsBar.style.display=(tab==='apps')?'':'none';
+  if(tab==='games')renderGamesTab();
+  if(tab==='kids')renderKidsTab();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function handleSearch(q){
@@ -640,6 +786,16 @@ function goHome(){
   handleSearch('');
   var chips=document.querySelectorAll('.chip');
   for(var i=0;i<chips.length;i++)chips[i].classList.toggle('active',i===0);
+  // Reset to apps tab
+  var tabs=['apps','games','kids'];
+  for(var i=0;i<tabs.length;i++){
+    var btn=document.getElementById('tab-'+tabs[i]);
+    if(btn)btn.classList.toggle('active',tabs[i]==='apps');
+    var view=document.getElementById('tabView'+tabs[i].charAt(0).toUpperCase()+tabs[i].slice(1));
+    if(view)view.classList.toggle('active',tabs[i]==='apps');
+  }
+  var chipsBar=document.getElementById('chipsBar');
+  if(chipsBar)chipsBar.style.display='';
 }
 
 // Dark mode is default — start as true
