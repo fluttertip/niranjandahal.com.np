@@ -1,37 +1,107 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 
 /* ---------------------------------------------------------
-   PLACEHOLDER CONTENT — swap this out with real copy/projects
+   CONTENT — keep it sparse, keep it deliberate
 --------------------------------------------------------- */
 const ROLE = "application developer";
 const QUOTE = "building things that hold up under pressure";
-const LINE_TWO = "turning complexity into something that justt works";
-const LINE_THREE = "Making production worth the blast";
+const LINE_TWO = "turning complexity into something that just works";
+const LINE_THREE = "making production worth the blast";
 const CONTACT_EMAIL = "niranjandahal76@gmail.com";
 const DISPLAY_NAME = "Niranjan Dahal";
 
 /* ---------------------------------------------------------
-   PARTICLE FIELD — organic blob/flow, morphs with scroll
+   PREFERS REDUCED MOTION
 --------------------------------------------------------- */
-function useParticleField(mountRef, progressRef) {
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const fn = (e) => setReduced(e.matches);
+    mq.addEventListener("change", fn);
+    return () => mq.removeEventListener("change", fn);
+  }, []);
+  return reduced;
+}
+
+/* ---------------------------------------------------------
+   BUILD A SPARSE NEAREST-NEIGHBOR NETWORK (once, from base positions)
+   grid-bucketed so it stays O(n) instead of O(n^2)
+--------------------------------------------------------- */
+function buildConnections(basePositions, count, cellSize, maxPerPoint) {
+  const grid = new Map();
+  const key = (x, y, z) =>
+    `${Math.floor(x / cellSize)}_${Math.floor(y / cellSize)}_${Math.floor(z / cellSize)}`;
+
+  for (let i = 0; i < count; i++) {
+    const x = basePositions[i * 3];
+    const y = basePositions[i * 3 + 1];
+    const z = basePositions[i * 3 + 2];
+    const k = key(x, y, z);
+    if (!grid.has(k)) grid.set(k, []);
+    grid.get(k).push(i);
+  }
+
+  const degree = new Uint8Array(count);
+  const connections = [];
+
+  for (let i = 0; i < count; i++) {
+    if (degree[i] >= maxPerPoint) continue;
+    const x = basePositions[i * 3];
+    const y = basePositions[i * 3 + 1];
+    const z = basePositions[i * 3 + 2];
+    const cx = Math.floor(x / cellSize);
+    const cy = Math.floor(y / cellSize);
+    const cz = Math.floor(z / cellSize);
+
+    let bestJ = -1;
+    let bestD = Infinity;
+
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          const arr = grid.get(`${cx + dx}_${cy + dy}_${cz + dz}`);
+          if (!arr) continue;
+          for (const j of arr) {
+            if (j === i || degree[j] >= maxPerPoint) continue;
+            const ddx = basePositions[j * 3] - x;
+            const ddy = basePositions[j * 3 + 1] - y;
+            const ddz = basePositions[j * 3 + 2] - z;
+            const d = ddx * ddx + ddy * ddy + ddz * ddz;
+            if (d < bestD) {
+              bestD = d;
+              bestJ = j;
+            }
+          }
+        }
+      }
+    }
+
+    if (bestJ >= 0 && bestD < cellSize * cellSize * 2.2) {
+      connections.push(i, bestJ);
+      degree[i]++;
+      degree[bestJ]++;
+    }
+  }
+
+  return new Int32Array(connections);
+}
+
+/* ---------------------------------------------------------
+   PARTICLE FIELD — a stable, connected lattice that comes apart
+   the further you scroll. Mouse gives it a faint pulse of life.
+--------------------------------------------------------- */
+function useParticleField(mountRef, progressRef, reducedMotion) {
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x08070c, 0.028);
 
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      mount.clientWidth / mount.clientHeight,
-      0.1,
-      100
-    );
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(0, 0, 9);
 
     const renderer = new THREE.WebGLRenderer({
@@ -40,22 +110,28 @@ function useParticleField(mountRef, progressRef) {
       powerPreference: "high-performance",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
 
-    // --- build an organic point cloud (sphere-ish blob, noisy) ---
+    const setSize = () => {
+      const w = mount.clientWidth || window.innerWidth;
+      const h = mount.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    setSize();
+
     const COUNT = 4200;
     const positions = new Float32Array(COUNT * 3);
     const basePositions = new Float32Array(COUNT * 3);
     const seeds = new Float32Array(COUNT);
     const colors = new Float32Array(COUNT * 3);
 
-    const colorA = new THREE.Color(0x7c6fff); // violet
-    const colorB = new THREE.Color(0x4fd1c5); // teal
-    const colorC = new THREE.Color(0xff6b4a); // ember (rare accent)
+    const colorA = new THREE.Color(0x7c6fff);
+    const colorB = new THREE.Color(0x4fd1c5);
+    const colorC = new THREE.Color(0xff6b4a);
 
     for (let i = 0; i < COUNT; i++) {
-      // fibonacci sphere distribution for an even organic blob
       const t = i / COUNT;
       const inc = Math.acos(1 - 2 * t);
       const az = Math.PI * (1 + Math.sqrt(5)) * i;
@@ -74,9 +150,7 @@ function useParticleField(mountRef, progressRef) {
       seeds[i] = Math.random() * 1000;
 
       const mixT = Math.random();
-      let c;
-      if (mixT > 0.94) c = colorC.clone();
-      else c = colorA.clone().lerp(colorB, mixT);
+      const c = mixT > 0.94 ? colorC.clone() : colorA.clone().lerp(colorB, mixT);
       colors[i * 3] = c.r;
       colors[i * 3 + 1] = c.g;
       colors[i * 3 + 2] = c.b;
@@ -90,7 +164,7 @@ function useParticleField(mountRef, progressRef) {
       size: 0.028,
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -98,7 +172,21 @@ function useParticleField(mountRef, progressRef) {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    // a soft inner glow sphere for depth
+    // sparse constellation network — the "stable" signal at the top of the page
+    const connections = buildConnections(basePositions, COUNT, 0.62, 2);
+    const linePositions = new Float32Array(connections.length * 3);
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x8f89e0,
+      transparent: true,
+      opacity: 0.32,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    scene.add(lines);
+
     const glowGeo = new THREE.SphereGeometry(1.4, 32, 32);
     const glowMat = new THREE.MeshBasicMaterial({
       color: 0x2a2340,
@@ -108,24 +196,35 @@ function useParticleField(mountRef, progressRef) {
     const glow = new THREE.Mesh(glowGeo, glowMat);
     scene.add(glow);
 
+    // faint mouse-driven life — damped, never jarring
+    const mouse = { x: 0, y: 0 };
+    const mouseLerped = { x: 0, y: 0 };
+    const onMouseMove = (e) => {
+      const rect = mount.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    };
+    if (!reducedMotion) window.addEventListener("mousemove", onMouseMove);
+
     let raf;
     let t = 0;
     const clock = new THREE.Clock();
 
     function animate() {
       raf = requestAnimationFrame(animate);
-      const dt = clock.getDelta();
+      const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
 
-      const progress = progressRef.current; // 0..1 across whole page
-
+      const progress = progressRef.current;
       const posAttr = geometry.attributes.position;
       const arr = posAttr.array;
 
-      // morph strength grows as user scrolls — calm at top, most chaotic at the end
-      const eased = Math.pow(progress, 1.7); // slow build, sharp ramp near the end
-      const morph = prefersReducedMotion ? 0.1 : 0.1 + eased * 2.6;
-      const spin = prefersReducedMotion ? 0 : t * (0.04 + eased * 0.12);
+      const eased = Math.pow(progress, 1.7);
+      const morph = reducedMotion ? 0.08 : 0.1 + eased * 2.6;
+      const spin = reducedMotion ? 0 : t * (0.04 + eased * 0.12);
+
+      mouseLerped.x += (mouse.x - mouseLerped.x) * 0.03;
+      mouseLerped.y += (mouse.y - mouseLerped.y) * 0.03;
 
       for (let i = 0; i < COUNT; i++) {
         const bx = basePositions[i * 3];
@@ -146,15 +245,27 @@ function useParticleField(mountRef, progressRef) {
       }
       posAttr.needsUpdate = true;
 
-      points.rotation.y = spin + progress * Math.PI * 0.6;
-      points.rotation.x = Math.sin(progress * Math.PI) * 0.25 + eased * Math.sin(t * 0.6) * 0.15;
-      points.rotation.z = eased * Math.sin(t * 0.35) * 0.2;
+      // network follows the same points, then dissolves as chaos rises
+      const linePos = lineGeometry.attributes.position.array;
+      for (let k = 0; k < connections.length; k++) {
+        const idx = connections[k];
+        linePos[k * 3] = arr[idx * 3];
+        linePos[k * 3 + 1] = arr[idx * 3 + 1];
+        linePos[k * 3 + 2] = arr[idx * 3 + 2];
+      }
+      lineGeometry.attributes.position.needsUpdate = true;
+      lineMaterial.opacity = Math.max(0, 1 - eased * 1.35) * 0.32;
 
-      // camera drifts calmly at first, shakes and pushes in as it gets chaotic
-      const shake = eased * 0.35;
+      points.rotation.y = spin + progress * Math.PI * 0.6 + mouseLerped.x * 0.12;
+      points.rotation.x =
+        Math.sin(progress * Math.PI) * 0.25 + eased * Math.sin(t * 0.6) * 0.15 + mouseLerped.y * 0.08;
+      points.rotation.z = eased * Math.sin(t * 0.35) * 0.2;
+      lines.rotation.copy(points.rotation);
+
+      const shake = reducedMotion ? 0 : eased * 0.35;
       camera.position.z = 9 - progress * 6.8;
-      camera.position.x = Math.sin(progress * Math.PI * 2) * 0.6 + Math.sin(t * 3.1) * shake;
-      camera.position.y = Math.cos(t * 2.7) * shake * 0.6;
+      camera.position.x = Math.sin(progress * Math.PI * 2) * 0.6 + Math.sin(t * 3.1) * shake + mouseLerped.x * 0.25;
+      camera.position.y = Math.cos(t * 2.7) * shake * 0.6 + mouseLerped.y * 0.18;
       camera.fov = 60 + progress * 16;
       camera.updateProjectionMatrix();
 
@@ -164,31 +275,29 @@ function useParticleField(mountRef, progressRef) {
     }
     animate();
 
-    function onResize() {
-      if (!mount) return;
-      camera.aspect = mount.clientWidth / mount.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(mount.clientWidth, mount.clientHeight);
-    }
-    window.addEventListener("resize", onResize);
+    const ro = new ResizeObserver(setSize);
+    ro.observe(mount);
+    window.addEventListener("resize", setSize);
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
+      ro.disconnect();
+      window.removeEventListener("resize", setSize);
+      window.removeEventListener("mousemove", onMouseMove);
       geometry.dispose();
       material.dispose();
+      lineGeometry.dispose();
+      lineMaterial.dispose();
       glowGeo.dispose();
       glowMat.dispose();
       renderer.dispose();
-      if (mount.contains(renderer.domElement)) {
-        mount.removeChild(renderer.domElement);
-      }
+      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
-  }, [mountRef, progressRef]);
+  }, [mountRef, progressRef, reducedMotion]);
 }
 
 /* ---------------------------------------------------------
-   SCROLL PROGRESS HOOK
+   SCROLL PROGRESS
 --------------------------------------------------------- */
 function useScrollProgress(containerRef) {
   const progressRef = useRef(0);
@@ -212,20 +321,55 @@ function useScrollProgress(containerRef) {
 }
 
 /* ---------------------------------------------------------
-   REVEAL WRAPPER — fades sections in as they cross viewport
+   DISTORT TEXT — words hold a scatter offset that settles toward
+   "chaos" (0 = perfectly calm, 1 = fully unsettled). The same
+   number that drives the particle field drives the type.
 --------------------------------------------------------- */
-function Reveal({ children, className = "" }) {
+function DistortText({ text, chaos, style, reducedMotion }) {
+  const words = text.split(" ");
+  return (
+    <span style={{ ...style, display: "inline-block" }}>
+      {words.map((w, i) => {
+        const seedA = ((i * 37) % 97) / 97 - 0.5;
+        const seedB = ((i * 53) % 89) / 89 - 0.5;
+        const c = reducedMotion ? 0 : chaos;
+        return (
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              transform: `translate(${seedA * 20 * c}px, ${seedB * 14 * c}px) rotate(${seedA * 9 * c}deg)`,
+              transitionProperty: "transform",
+              transitionDuration: "0.6s",
+              transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
+              transitionDelay: `${i * 22}ms`,
+              marginRight: "0.3em",
+            }}
+          >
+            {w}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/* ---------------------------------------------------------
+   STORY LINE — a DistortText that assembles into place on first
+   view, then keeps tracking the page's overall chaos level.
+--------------------------------------------------------- */
+function StoryLine({ text, restChaos, style, reducedMotion }) {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
+        if (entry.isIntersecting) setRevealed(true);
       },
-      { threshold: 0.3 }
+      { threshold: 0.4 }
     );
     obs.observe(node);
     return () => obs.disconnect();
@@ -234,14 +378,17 @@ function Reveal({ children, className = "" }) {
   return (
     <div
       ref={ref}
-      className={className}
       style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0px)" : "translateY(28px)",
-        transition: "opacity 0.9s cubic-bezier(.2,.7,.2,1), transform 0.9s cubic-bezier(.2,.7,.2,1)",
+        opacity: revealed ? 1 : 0,
+        transition: "opacity 0.7s ease-out",
       }}
     >
-      {children}
+      <DistortText
+        text={text}
+        chaos={revealed ? restChaos : 1}
+        style={style}
+        reducedMotion={reducedMotion}
+      />
     </div>
   );
 }
@@ -253,26 +400,34 @@ export default function Portfolio() {
   const mountRef = useRef(null);
   const scrollRef = useRef(null);
   const { progressRef, display } = useScrollProgress(scrollRef);
+  const reducedMotion = usePrefersReducedMotion();
 
-  useParticleField(mountRef, progressRef);
+  useParticleField(mountRef, progressRef, reducedMotion);
 
-  const scrollTo = (id) => {
+  const scrollTo = useCallback((id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
+
+  const grainSvg =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`
+    );
 
   return (
     <div
       style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100dvh",
         background: "#08070c",
         overflow: "hidden",
-        fontFamily:
-          "'Söhne', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Söhne', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       }}
     >
       <style>{`
+        html, body, #root { height: 100%; margin: 0; padding: 0; }
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500&family=Inter:wght@300;400;500;600&display=swap');
         .fr { font-family: 'Fraunces', serif; }
         .in { font-family: 'Inter', sans-serif; }
@@ -280,18 +435,29 @@ export default function Portfolio() {
         .scrollarea { scrollbar-width: none; }
         .scrollarea::-webkit-scrollbar { display: none; }
         .navdot { transition: background 0.3s, transform 0.3s; }
+        @keyframes driftline {
+          0% { transform: translateY(0); opacity: 0.9; }
+          50% { transform: translateY(14px); opacity: 0.25; }
+          100% { transform: translateY(28px); opacity: 0; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          * { scroll-behavior: auto !important; }
+          * { scroll-behavior: auto !important; animation: none !important; }
         }
       `}</style>
 
       {/* 3D background, fixed */}
+      <div ref={mountRef} style={{ position: "absolute", inset: 0, zIndex: 0 }} />
+
+      {/* grain — cheap texture so the black never reads flat */}
       <div
-        ref={mountRef}
         style={{
           position: "absolute",
           inset: 0,
-          zIndex: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+          backgroundImage: `url("${grainSvg}")`,
+          opacity: 0.035,
+          mixBlendMode: "overlay",
         }}
       />
 
@@ -300,7 +466,7 @@ export default function Portfolio() {
         style={{
           position: "absolute",
           inset: 0,
-          zIndex: 1,
+          zIndex: 2,
           pointerEvents: "none",
           background:
             "radial-gradient(ellipse at 50% 40%, transparent 0%, rgba(8,7,12,0.55) 65%, rgba(8,7,12,0.95) 100%)",
@@ -314,7 +480,7 @@ export default function Portfolio() {
           right: "28px",
           top: "50%",
           transform: "translateY(-50%)",
-          zIndex: 3,
+          zIndex: 4,
           display: "flex",
           flexDirection: "column",
           gap: "14px",
@@ -335,9 +501,7 @@ export default function Portfolio() {
                   ? "#e8e6f0"
                   : "rgba(232,230,240,0.28)",
               transform:
-                display >= i * 0.25 && display < (i + 1) * 0.25
-                  ? "scale(1.7)"
-                  : "scale(1)",
+                display >= i * 0.25 && display < (i + 1) * 0.25 ? "scale(1.7)" : "scale(1)",
             }}
           />
         ))}
@@ -349,7 +513,7 @@ export default function Portfolio() {
         className="scrollarea"
         style={{
           position: "relative",
-          zIndex: 2,
+          zIndex: 3,
           height: "100%",
           overflowY: "auto",
           scrollBehavior: "smooth",
@@ -365,9 +529,13 @@ export default function Portfolio() {
             justifyContent: "center",
             padding: "0 8vw",
             maxWidth: "900px",
+            position: "relative",
           }}
         >
-          <div className="in" style={{ color: "#9d95c9", fontSize: "14px", letterSpacing: "0.02em", marginBottom: "18px" }}>
+          <div
+            className="in"
+            style={{ color: "#9d95c9", fontSize: "14px", letterSpacing: "0.02em", marginBottom: "18px" }}
+          >
             {ROLE}
           </div>
           <h1
@@ -383,75 +551,70 @@ export default function Portfolio() {
           >
             {QUOTE}
           </h1>
+
+          {/* wordless scroll cue — a line that drifts and dissolves, and fades for good the moment you actually scroll */}
           <div
-            className="in"
-            onClick={() => scrollTo("about")}
             style={{
-              marginTop: "56px",
-              color: "#7c6fff",
-              fontSize: "13px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
+              position: "absolute",
+              bottom: "48px",
+              left: "8vw",
+              width: "1px",
+              height: "40px",
+              overflow: "hidden",
+              opacity: Math.max(0, 1 - display * 14),
+              pointerEvents: "none",
             }}
           >
-            <span style={{ width: "24px", height: "1px", background: "#7c6fff" }} />
-            scroll
+            <div
+              style={{
+                width: "1px",
+                height: "16px",
+                background: "linear-gradient(#7c6fff, transparent)",
+                animation: reducedMotion ? "none" : "driftline 2.2s ease-in-out infinite",
+              }}
+            />
           </div>
         </section>
 
         {/* ABOUT */}
         <section
           id="about"
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 8vw",
-          }}
+          style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "0 8vw" }}
         >
-          <Reveal className="fr">
-            <p
-              style={{
-                color: "#e8e6f0",
-                fontSize: "clamp(1.6rem, 3.6vw, 2.8rem)",
-                lineHeight: 1.4,
-                fontWeight: 300,
-                maxWidth: "640px",
-              }}
-            >
-              {LINE_TWO}
-            </p>
-          </Reveal>
+          <StoryLine
+            text={LINE_TWO}
+            restChaos={0.12}
+            reducedMotion={reducedMotion}
+            style={{
+              color: "#e8e6f0",
+              fontSize: "clamp(1.6rem, 3.6vw, 2.8rem)",
+              lineHeight: 1.4,
+              fontWeight: 300,
+              maxWidth: "640px",
+            }}
+          />
         </section>
 
         {/* MORE */}
         <section
           id="more"
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 8vw",
-          }}
+          style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "0 8vw" }}
         >
-          <Reveal className="fr">
-            <p
-              style={{
-                color: "#e8e6f0",
-                fontSize: "clamp(1.6rem, 3.6vw, 2.8rem)",
-                lineHeight: 1.4,
-                fontWeight: 300,
-                maxWidth: "640px",
-              }}
-            >
-              {LINE_THREE}
-            </p>
-          </Reveal>
+          <StoryLine
+            text={LINE_THREE}
+            restChaos={0.5}
+            reducedMotion={reducedMotion}
+            style={{
+              color: "#e8e6f0",
+              fontSize: "clamp(1.6rem, 3.6vw, 2.8rem)",
+              lineHeight: 1.4,
+              fontWeight: 300,
+              maxWidth: "640px",
+            }}
+          />
         </section>
 
-        {/* CONTACT */}
+        {/* CONTACT — the one calm point after everything comes apart */}
         <section
           id="contact"
           style={{
@@ -462,33 +625,26 @@ export default function Portfolio() {
             padding: "0 8vw",
           }}
         >
-          <Reveal>
-            <span
-              className="fr"
-              style={{
-                display: "block",
-                color: "#f2f0f7",
-                fontSize: "clamp(1.4rem, 3vw, 2rem)",
-                fontWeight: 500,
-              }}
-            >
-              {DISPLAY_NAME}
-            </span>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="fr"
-              style={{
-                display: "block",
-                marginTop: "14px",
-                color: "#9d95c9",
-                fontSize: "clamp(1.1rem, 2.2vw, 1.5rem)",
-                fontWeight: 300,
-                textDecoration: "none",
-              }}
-            >
-              {CONTACT_EMAIL}
-            </a>
-          </Reveal>
+          <StoryLine
+            text={DISPLAY_NAME}
+            restChaos={0.04}
+            reducedMotion={reducedMotion}
+            style={{ color: "#f2f0f7", fontSize: "clamp(1.4rem, 3vw, 2rem)", fontWeight: 500 }}
+          />
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="fr"
+            style={{
+              display: "block",
+              marginTop: "14px",
+              color: "#9d95c9",
+              fontSize: "clamp(1.1rem, 2.2vw, 1.5rem)",
+              fontWeight: 300,
+              textDecoration: "none",
+            }}
+          >
+            {CONTACT_EMAIL}
+          </a>
         </section>
       </div>
     </div>
